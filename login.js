@@ -20,9 +20,10 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             try {
-                const response = await fetch("https://spendiq.onrender.com");
+                const response = await fetch("https://api.jsonbin.io/v3/qs/67d895788561e97a50ee0f19");
                 if (!response.ok) throw new Error("Failed to fetch users.");
-                const users = await response.json();
+                const data = await response.json();
+                const users = data.record.users; // Access nested 'users' array
 
                 const user = users.find(u => u.username === username && u.password === password);
                 if (user) {
@@ -57,9 +58,10 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             try {
-                const usersResponse = await fetch("http://localhost:5000/users");
+                const usersResponse = await fetch("https://api.jsonbin.io/v3/qs/67d895788561e97a50ee0f19");
                 if (!usersResponse.ok) throw new Error("Failed to fetch users.");
-                const users = await usersResponse.json();
+                const data = await usersResponse.json();
+                const users = data.record.users; // Access nested 'users' array
 
                 if (users.find(u => u.username === username)) {
                     signupError.textContent = "Username already exists.";
@@ -73,7 +75,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     password: password
                 };
 
-                const signupResponse = await fetch("http://localhost:5000/users", {
+                // Note: JSONbin is read-only, so POST won't work directly.
+                // This is a placeholder for a writable endpoint.
+                const signupResponse = await fetch("https://api.jsonbin.io/v3/qs/67d895788561e97a50ee0f19", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -81,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     body: JSON.stringify(newUser)
                 });
 
-                if (!signupResponse.ok) throw new Error("Failed to sign up.");
+                if (!signupResponse.ok) throw new Error("Failed to sign up. JSONbin is read-only; use a writable endpoint for signup.");
 
                 // Show success popup
                 const overlay = document.createElement("div");
@@ -129,7 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 signupError.style.display = "none";
             } catch (error) {
                 console.error("Signup error:", error);
-                signupError.textContent = "An error occurred during signup. Please try again.";
+                signupError.textContent = "An error occurred during signup. JSONbin is read-only; signup requires a writable endpoint.";
                 signupError.style.display = "block";
             }
         });
