@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SpendIQ</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        #logout-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: transparent;
+            border: none;
+            color: red;
+            font-size: 1em;
+            cursor: pointer;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            opacity: 0.8;
+        }
+        #logout-btn:hover {
+            transform: scale(1.1);
+            opacity: 1;
+        }
+        .greeting {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 1.2em;
+            color: #333;
+        }
+        img{
+            height: 17px;
+            width: 17px;
+            vertical-align: middle; /* Align the image vertically in the middle */
+        }
+        .search-container {
+            display: flex; /* Use flexbox for layout */
+            align-items: center; /* Align items vertically in the center */
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            overflow: hidden; /* Prevent content from overflowing the container */
+        }
+        .search-container input[type="text"] {
+            border: none;
+            padding: 8px 10px;
+            flex-grow: 1; /* Allow the input to grow and fill available space */
+            outline: none;
+        }
+        .search-container button {
+            background-color: transparent;
+            border: none;
+            padding: 8px 10px;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body> 
+    <button id="logout-btn" aria-label="Logout">Log Out</button>
+    <div class="greeting" id="user-greeting"></div>
+    <div class="side-title">
+        <h1 class="app-title">Spend<span class="iq-title">IQ</span></h1>
+    </div>
+    <div class="mobile-container">
+        <div class="progress-container">
+            <progress id="budget-progress" value="0" max="100" aria-label="Budget Progress"></progress>
+            <div class="progress-text">
+                <span class="remaining">Remaining: ₹<span id="remaining-amount">0</span></span>
+                <span class="spent">Spent: ₹<span id="spent-amount">0</span></span>
+            </div>
+            <div id="video-container">
+                <video id="video" autoplay muted playsinline></video>
+                <p id="result">Scan a BARCODE</p>
+            </div>
+            <div class="scanner-controls">
+                <button id="start-scanner" aria-label="Start barcode scanner">Start Scanner</button>
+                <button id="stop-scanner" aria-label="Stop barcode scanner">Stop Scanner</button>
+            </div>
+        </div>
+        <h2 class="cart-title">Cart</h2>
+        <div class="cart-header">
+            <span class="product-count">Products: <span id="product-count">0</span></span>
+            <div class="search-container">
+                <input type="text" id="cart-search" placeholder="Search cart..." aria-label="Search cart items">
+                <button id="search-btn" aria-label="Search cart"> <img src="https://res.cloudinary.com/dybfozdea/image/upload/v1742224418/ridjxz83cdspeekuza6c.png" /></button>
+            </div>
+        </div>
+        <div class="cart-container">
+            <ul id="scanned-items" role="list"></ul>
+        </div>
+        <div class="checkout-container">
+            <button id="checkout-btn" aria-label="Proceed to checkout">Checkout Payment</button>
+        </div>
+    </div>
+    <script src="node_modules/@zxing/library/umd/index.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

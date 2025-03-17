@@ -1,0 +1,7 @@
+{
+  "name": "spendiq",
+  "version": "1.0.0",
+  "dependencies": {
+    "@zxing/library": "^0.21.3"
+  }
+}

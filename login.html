@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - SpendIQ</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #f0f2f5, #e1e6eb);
+            overflow: hidden;
+        }
+
+        .container {
+            width: 350px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            box-sizing: border-box;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            margin: 12px 0;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background-color: #f9f9f9;
+        }
+
+        input:focus {
+            border-color: #4caf50;
+            outline: none;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+            transform: scale(1.02);
+        }
+
+        #loginError {
+            color: #e74c3c;
+            margin-top: 15px;
+            display: none;
+            font-size: 0.9em;
+            text-align: center;
+            opacity: 0.8;
+        }
+
+        a {
+            color: #3498db;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #2980b9;
+        }
+
+        .iq-colors {
+            font-size :70px;
+            transition: color 2s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 style="font-size: 50px;">Spend<span class="iq-colors" id="iqColors">IQ</span></h2>
+        <h3 style="font-size: 30px; text-align: center;"> Login</h3>
+        <input type="text" id="loginUsername" placeholder="Username" required>
+        <input type="password" id="loginPassword" placeholder="Password" required>
+        <button id="loginBtn">Login</button>
+        <p id="loginError"></p>
+        <p style="text-align: center; margin-top: 20px;"><a href="signup.html">Create One ? Sign Up</a></p>
+    </div>
+    <script src="login.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const iqColors = document.getElementById('iqColors');
+            const colors = ["#3498db", "#e74c3c", "#2ecc71", "#f39c12", "#9b59b6"];
+            let colorIndex = 0;
+
+            function changeColors() {
+                iqColors.style.color = colors[colorIndex];
+                colorIndex = (colorIndex + 1) % colors.length;
+            }
+
+            changeColors(); // Initial color change
+            setInterval(changeColors, 2000); // Change every 2 seconds
+        });
+    </script>
+</body>
+</html>
