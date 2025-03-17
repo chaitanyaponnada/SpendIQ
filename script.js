@@ -167,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function fetchProductDetails(barcode) {
         try {
-            const response = await fetch("http://localhost:5000/products");
+            const response = await fetch("https://spendiq.onrender.com");
             const products = await response.json();
             const product = products.find(item => item.barcode === barcode);
             if (product) addToCart(product);
