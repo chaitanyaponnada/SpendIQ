@@ -26,7 +26,14 @@ document.addEventListener("DOMContentLoaded", () => {
         productCount: document.getElementById("product-count"),
         searchInput: document.getElementById("cart-search"),
         searchBtn: document.getElementById("search-btn"),
-        checkoutBtn: document.getElementById("checkout-btn")
+        checkoutBtn: document.getElementById("checkout-btn"),
+        checkoutPage: document.getElementById("checkout-page"),
+        checkoutCartList: document.getElementById("checkout-cart-list"),
+        checkoutTotal: document.getElementById("checkout-total"),
+        proceedCheckoutBtn: document.getElementById("proceed-checkout"),
+        closeCheckoutBtn: document.querySelector(".close-checkout"),
+        upiOptionsContainer: document.getElementById("upi-options"),
+        upiOptions: document.querySelectorAll(".upi-option")
     };
 
     let videoStream = null;
@@ -43,6 +50,10 @@ document.addEventListener("DOMContentLoaded", () => {
     elements.video.style.borderRadius = "8px";
     elements.video.style.border = "none";
 
+    // Initialize UI from localStorage on reload
+    updateProgressBar();
+    loadCart();
+
     setTimeout(() => {
         if (localStorage.getItem("totalBudget")) {
             displayBudgetChoicePopup();
@@ -51,7 +62,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }, 4000);
 
-    // Updated logout functionality to clear all localStorage
     elements.logoutBtn.addEventListener("click", () => {
         localStorage.clear();
         window.location.href = "login.html";
@@ -104,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
             spent = 0;
             elements.scannedItems.innerHTML = "";
             updateProgressBar();
-            updateProductCount(); // Update count when cart is cleared
+            updateProductCount();
             popup.remove();
             overlay.remove();
             createBudgetWidget();
@@ -162,9 +172,6 @@ document.addEventListener("DOMContentLoaded", () => {
         elements.video.style.border = "none";
     }
 
-    elements.startScannerBtn.addEventListener("click", startScanner);
-    elements.stopScannerBtn.addEventListener("click", stopScanner);
-
     async function fetchProductDetails(barcode) {
         try {
             const response = await fetch("https://spendiq.onrender.com");
@@ -211,11 +218,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 updateSpentAmount(-(parseFloat(li.querySelector(".quantity").textContent) * product.price));
                 li.remove();
                 saveCart();
-                updateProductCount(); // Update count after deletion
+                updateProductCount();
             });
             updateSpentAmount(product.price);
             saveCart();
-            updateProductCount(); // Update count after adding new item
+            updateProductCount();
         }
     }
 
@@ -533,7 +540,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const cartItems = Array.from(elements.scannedItems.children).map(item => {
             return {
                 name: item.dataset.name,
-                price: parseFloat(item.querySelector(".price").textContent.replace("₹", "")),
+                price: parseFloat(item.querySelector(".price").textContent.replace("₹", "")) / parseInt(item.querySelector(".quantity").textContent),
                 quantity: parseInt(item.querySelector(".quantity").textContent)
             };
         });
@@ -550,13 +557,18 @@ document.addEventListener("DOMContentLoaded", () => {
             li.setAttribute("role", "listitem");
             li.setAttribute("aria-label", `${item.name}, price ₹${(item.price * item.quantity).toFixed(2)}`);
             li.innerHTML = `
-                ${item.name} - <span class="price">₹${(item.price * item.quantity).toFixed(2)}</span> 
-                <div class="quantity-controls">
-                    <button class="decrease">-</button>
-                    <span class="quantity">${item.quantity}</span>
-                    <button class="increase">+</button>
+                <div class="cart-item-content">
+                    <span class="product-name">${item.name}</span>
+                    <div>
+                        <div class="quantity-controls">
+                            <button class="decrease">-</button>
+                            <span class="quantity">${item.quantity}</span>
+                            <button class="increase">+</button>
+                        </div>
+                        <span class="price">₹${(item.price * item.quantity).toFixed(2)}</span>
+                        <button class="delete-button"><i class="fas fa-trash-alt"></i></button>
+                    </div>
                 </div>
-                <button class="delete-button">X</button>
             `;
             elements.scannedItems.appendChild(li);
 
@@ -566,12 +578,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 updateSpentAmount(-(item.price * parseInt(li.querySelector(".quantity").textContent)));
                 li.remove();
                 saveCart();
-                updateProgressBar();
-                updateProductCount(); // Update count after deletion in loaded cart
+                updateProductCount();
             });
         });
-        updateProgressBar();
-        updateProductCount(); // Update count after loading cart
+        updateProductCount();
     }
 
     if (localStorage.getItem("progressBarValue")) {
@@ -588,42 +598,120 @@ document.addEventListener("DOMContentLoaded", () => {
         else progressContainer.classList.add("green");
     }
 
-    // Updated Search Functionality
     function searchCart() {
         const query = elements.searchInput.value.trim().toLowerCase();
         const items = elements.scannedItems.children;
         Array.from(items).forEach(item => {
             const name = item.dataset.name.toLowerCase();
             if (query === "") {
-                item.style.display = "block"; // Show all items when search is cleared
+                item.style.display = "block";
             } else {
-                item.style.display = name.includes(query) ? "block" : "none"; // Show only matching items
+                item.style.display = name.includes(query) ? "block" : "none";
             }
         });
-        updateProductCount(); // Update count after search to reflect visible items
+        updateProductCount();
     }
 
-    // Updated Product Count Function
     function updateProductCount() {
-        // Count only visible items in the cart
         const visibleItems = Array.from(elements.scannedItems.children).filter(item => item.style.display !== "none");
         elements.productCount.textContent = visibleItems.length;
     }
 
+    // Checkout Functionality (Updated with fix for null check)
     function handleCheckout() {
         if (spent === 0) {
             alert("Your cart is empty!");
             return;
         }
-        alert(`Proceeding to payment of ₹${spent.toFixed(2)}. (Payment integration TBD)`);
+
+        // Check if required elements exist
+        if (!elements.checkoutPage || !elements.checkoutCartList || !elements.checkoutTotal || !elements.proceedCheckoutBtn) {
+            console.error("Checkout elements not found in DOM:", {
+                checkoutPage: !!elements.checkoutPage,
+                checkoutCartList: !!elements.checkoutCartList,
+                checkoutTotal: !!elements.checkoutTotal,
+                proceedCheckoutBtn: !!elements.proceedCheckoutBtn
+            });
+            alert("Checkout feature is unavailable due to missing elements.");
+            return;
+        }
+
+        // Populate cart list as a bill
+        const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
+        elements.checkoutCartList.innerHTML = "";
+        cartItems.forEach(item => {
+            const li = document.createElement("li");
+            li.innerHTML = `${item.name} (x${item.quantity}) <span>₹${(item.price * item.quantity).toFixed(2)}</span>`;
+            elements.checkoutCartList.appendChild(li);
+        });
+
+        // Update total
+        elements.checkoutTotal.textContent = `Total: ₹${spent.toFixed(2)}`;
+
+        // Show checkout page with bill view
+        elements.checkoutPage.style.display = "block";
+        elements.upiOptionsContainer.style.display = "none"; // Hide UPI initially
+        elements.proceedCheckoutBtn.style.display = "inline-block"; // Show proceed button
+
+        // Add Back button dynamically if not already present
+        setTimeout(() => elements.checkoutPage.classList.add("show"), 10); // Trigger animation
+    }
+
+    // Proceed to payment.html
+    function proceedToPayment() {
+        window.location.href = "payment.html";
+    }
+
+    function closeCheckout() {
+        if (elements.checkoutPage) {
+            elements.checkoutPage.classList.remove("show");
+            setTimeout(() => {
+                elements.checkoutPage.style.display = "none";
+                if (elements.checkoutCartList) elements.checkoutCartList.style.display = "block"; // Reset for next open
+                if (elements.checkoutCartList) elements.checkoutCartList.style.maxHeight = "40vh";
+                if (elements.checkoutTotal) elements.checkoutTotal.style.display = "block";
+                if (elements.checkoutPage.querySelector("h2")) elements.checkoutPage.querySelector("h2").textContent = "Your Cart";
+                if (elements.upiOptionsContainer) elements.upiOptionsContainer.style.maxHeight = "0"; // Reset UPI height
+            }, 400); // Match transition duration
+        }
+    }
+
+    // Retained from previous code but unused due to redirect
+    function showUPIOptions() {
+        if (elements.checkoutCartList) elements.checkoutCartList.style.maxHeight = "0";
+        if (elements.checkoutTotal) elements.checkoutTotal.style.display = "none";
+        if (elements.proceedCheckoutBtn) elements.proceedCheckoutBtn.style.display = "none";
+        if (elements.checkoutPage.querySelector("h2")) elements.checkoutPage.querySelector("h2").textContent = "Select UPI Payment Method";
+        if (elements.upiOptionsContainer) elements.upiOptionsContainer.style.display = "flex";
+        setTimeout(() => {
+            if (elements.checkoutCartList) elements.checkoutCartList.style.display = "none"; // Fully hide after animation
+            if (elements.upiOptionsContainer) elements.upiOptionsContainer.style.maxHeight = "40vh"; // Expand UPI options
+        }, 500); // Match transition duration
+    }
+
+    // Retained from previous code but unused due to redirect
+    function selectUPI(method) {
+        alert(`Proceeding to payment of ₹${spent.toFixed(2)} via ${method}. (Payment integration TBD)`);
+        closeCheckout();
     }
 
     // Event Listeners
+    elements.startScannerBtn.addEventListener("click", startScanner);
+    elements.stopScannerBtn.addEventListener("click", stopScanner);
     elements.searchInput.addEventListener("input", searchCart);
     elements.searchBtn.addEventListener("click", searchCart);
     elements.checkoutBtn.addEventListener("click", handleCheckout);
+    elements.proceedCheckoutBtn.addEventListener("click", proceedToPayment);
+    elements.closeCheckoutBtn.addEventListener("click", closeCheckout);
+    elements.upiOptions.forEach(option => {
+        option.addEventListener("click", () => {
+            const method = option.getAttribute("data-method");
+            selectUPI(method);
+        });
+    });
 
     displaySpendIQ();
     animateIQColors(elements.iqTitle);
+
     loadCart();
 });

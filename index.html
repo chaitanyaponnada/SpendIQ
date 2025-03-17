@@ -9,55 +9,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <style>
-        #logout-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: transparent;
-            border: none;
-            color: red;
-            font-size: 1em;
-            cursor: pointer;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-            opacity: 0.8;
-        }
-        #logout-btn:hover {
-            transform: scale(1.1);
-            opacity: 1;
-        }
-        .greeting {
-            text-align: center;
-            margin: 10px 0;
-            font-size: 1.2em;
-            color: #333;
-        }
-        img{
-            height: 17px;
-            width: 17px;
-            vertical-align: middle; /* Align the image vertically in the middle */
-        }
-        .search-container {
-            display: flex; /* Use flexbox for layout */
-            align-items: center; /* Align items vertically in the center */
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            overflow: hidden; /* Prevent content from overflowing the container */
-        }
-        .search-container input[type="text"] {
-            border: none;
-            padding: 8px 10px;
-            flex-grow: 1; /* Allow the input to grow and fill available space */
-            outline: none;
-        }
-        .search-container button {
-            background-color: transparent;
-            border: none;
-            padding: 8px 10px;
-            cursor: pointer;
-        }
-
-    </style>
 </head>
 <body> 
     <button id="logout-btn" aria-label="Logout">Log Out</button>
@@ -86,7 +37,9 @@
             <span class="product-count">Products: <span id="product-count">0</span></span>
             <div class="search-container">
                 <input type="text" id="cart-search" placeholder="Search cart..." aria-label="Search cart items">
-                <button id="search-btn" aria-label="Search cart"> <img src="https://res.cloudinary.com/dybfozdea/image/upload/v1742224418/ridjxz83cdspeekuza6c.png" /></button>
+                <button id="search-btn" aria-label="Search cart"> 
+                    <img src="https://res.cloudinary.com/dybfozdea/image/upload/v1742224418/ridjxz83cdspeekuza6c.png" alt="Search Icon" />
+                </button>
             </div>
         </div>
         <div class="cart-container">
@@ -96,6 +49,17 @@
             <button id="checkout-btn" aria-label="Proceed to checkout">Checkout Payment</button>
         </div>
     </div>
+
+    <!-- Checkout Page Container -->
+    <div id="checkout-page" class="checkout-page">
+        <h2>Your Cart</h2>
+        <ul id="checkout-cart-list"></ul>
+        <div id="checkout-total">Total: ₹0.00</div>
+        <button id="proceed-checkout">Checkout</button>
+        <button class="close-checkout">Close</button>
+        <div id="upi-options" style="display: none; flex-direction: column; gap: 10px; overflow-y: auto;">
+        </div>
+
     <script src="node_modules/@zxing/library/umd/index.min.js"></script>
     <script src="script.js"></script>
 </body>
