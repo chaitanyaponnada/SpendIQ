@@ -5,10 +5,15 @@ if (localStorage.getItem("isAuthenticated") !== "true") {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    // Check if ZXing library is loaded with detailed error handling
     if (typeof ZXing === "undefined") {
-        console.error("ZXing library not loaded.");
-        alert("Scanner unavailable. Please reload the page.");
+        console.error("ZXing library not loaded. Possible causes: script not included, network issue, or blocked by browser.");
+        alert("Scanner unavailable: ZXing library failed to load. Please ensure the script is included and reload the page.");
+        // Log additional context for debugging
+        console.log("Check if <script src='https://unpkg.com/@zxing/library@latest'></script> is in your HTML before script.js");
         return;
+    } else {
+        console.log("ZXing library loaded successfully.");
     }
 
     const elements = {
@@ -122,46 +127,71 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function startScanner() {
-        if (!navigator.mediaDevices?.getUserMedia) {
-            alert("Camera not supported.");
+        // Check if mediaDevices API is available
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            console.error("MediaDevices API not supported. Browser or device may not support camera access.");
+            alert("Scanner unavailable: Camera not supported by this browser or device.");
+            return;
+        }
+
+        // Check if running in a secure context (HTTPS)
+        if (window.location.protocol !== "https:" && window.location.hostname !== "localhost") {
+            console.error("Camera access requires HTTPS. Current protocol:", window.location.protocol);
+            alert("Scanner unavailable: Camera access requires HTTPS. Please deploy on a secure server.");
             return;
         }
 
         try {
+            console.log("Requesting camera access...");
             videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+            console.log("Camera access granted. Starting video stream.");
             elements.video.srcObject = videoStream;
             elements.video.style.display = "block";
             elements.result.textContent = "Scanning...";
             elements.result.classList.add("scanning");
 
             codeReader = new ZXing.BrowserMultiFormatReader();
+            console.log("Starting ZXing code reader...");
             codeReader.decodeFromVideoDevice(null, "video", (result, err) => {
                 if (result) {
+                    console.log("Barcode scanned successfully:", result.text);
                     elements.result.textContent = `Scanned: ${result.text}`;
                     elements.result.classList.remove("scanning");
                     elements.video.style.border = "5px solid #4caf50";
                     fetchProductDetails(result.text);
                 }
                 if (err && !(err instanceof ZXing.NotFoundException)) {
-                    console.error("Scan error:", err);
+                    console.error("Unexpected scan error:", err.name, err.message);
                 } else if (err instanceof ZXing.NotFoundException) {
                     elements.video.style.border = "5px solid #f44336";
                     elements.result.textContent = "Product not found.";
                 }
             });
         } catch (error) {
-            console.error("Camera access failed:", error);
-            alert("Camera access failed. Check permissions.");
+            console.error("Camera access failed:", error.name, error.message);
+            let errorMessage = "Scanner unavailable: ";
+            if (error.name === "NotAllowedError") {
+                errorMessage += "Camera permission denied. Please allow camera access in browser settings.";
+            } else if (error.name === "NotFoundError") {
+                errorMessage += "No camera found on this device.";
+            } else if (error.name === "SecurityError") {
+                errorMessage += "HTTPS required for camera access.";
+            } else {
+                errorMessage += `Unknown error - ${error.message}.`;
+            }
+            alert(errorMessage);
             stopScanner();
         }
     }
 
     function stopScanner() {
         if (codeReader) {
+            console.log("Stopping ZXing code reader...");
             codeReader.reset();
             codeReader = null;
         }
         if (videoStream) {
+            console.log("Stopping video stream...");
             videoStream.getTracks().forEach(track => track.stop());
             elements.video.srcObject = null;
             videoStream = null;
