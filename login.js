@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // Note: JSONbin is read-only, so POST won't work directly.
                 // This is a placeholder for a writable endpoint.
-                const signupResponse = await fetch("https://api.jsonbin.io/v3/qs/67d895788561e97a50ee0f19", {
+                const signupResponse = await fetch("https://api.jsonbin.io/v3/qs/67d936278a456b7966784383", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
