@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             try {
-                const usersResponse = await fetch("https://api.jsonbin.io/v3/qs/67d895788561e97a50ee0f19");
+                const usersResponse = await fetch("https://api.jsonbin.io/v3/qs/67d8fc638a456b796678211e");
                 if (!usersResponse.ok) throw new Error("Failed to fetch users.");
                 const data = await usersResponse.json();
                 const users = data.record.users; // Access nested 'users' array
