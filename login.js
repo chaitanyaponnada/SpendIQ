@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             try {
-                const response = await fetch("https://api.jsonbin.io/v3/qs/683589af8561e97a501c0dba");
+                const response = await fetch("https://api.jsonbin.io/v3/qs/6850f0938a456b7966af7036");
                 if (!response.ok) throw new Error("Failed to fetch users.");
                 const data = await response.json();
                 const users = data.record.users; // Access nested 'users' array
@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             try {
-                const usersResponse = await fetch("https://api.jsonbin.io/v3/qs/683589af8561e97a501c0dba");
+                const usersResponse = await fetch("https://api.jsonbin.io/v3/qs/6850f0938a456b7966af7036");
                 if (!usersResponse.ok) throw new Error("Failed to fetch users.");
                 const data = await usersResponse.json();
                 const users = data.record.users; // Access nested 'users' array
@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // Note: JSONbin is read-only, so POST won't work directly.
                 // This is a placeholder for a writable endpoint.
-                const signupResponse = await fetch("https://api.jsonbin.io/v3/qs/683589af8561e97a501c0dba", {
+                const signupResponse = await fetch("https://api.jsonbin.io/v3/qs/6850f0938a456b7966af7036", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
