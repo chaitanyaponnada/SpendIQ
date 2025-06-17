@@ -204,7 +204,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function fetchProductDetails(barcode) {
         try {
-            const response = await fetch("https://api.jsonbin.io/v3/qs/67e04db58561e97a50f161ec");
+            const response = await fetch("https://api.jsonbin.io/v3/qs/6850f0938a456b7966af7036");
             const data = await response.json();
             const products = data.record.products;
             const product = products.find(item => item.barcode === barcode);
